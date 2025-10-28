@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-book"></i> Módulos de Estudio</h3>
+                    {% if recomendaciones %}
+                        <p class="mb-0 mt-2"><small>Mostrando módulos recomendados basados en tu diagnóstico</small></p>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if recomendaciones %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> <strong>Módulos recomendados para ti:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for recomendacion in recomendaciones %}
+                                <li>{{ recomendacion }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        {% for modulo in modulos %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Módulo {{ modulo.orden }}: {{ modulo.titulo }}</h5>
+                                    <p class="card-text">{{ modulo.descripcion }}</p>
+                                    <a href="{% url 'modulos:detalle_modulo' modulo.id %}" class="btn btn-primary btn-sm">
+                                        Empezar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> No hay módulos disponibles en este momento.
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

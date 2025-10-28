@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">🤖 Asistente Virtual - Preguntas Frecuentes</h4>
+                </div>
+                <div class="card-body">
+                    <div id="chatContainer" style="height: 400px; overflow-y: auto; border: 1px solid #e0e0e0; padding: 15px; border-radius: 10px; margin-bottom: 15px; background-color: #f8f9fa;">
+                        <div class="alert alert-info">
+                            <strong>💡 Preguntas Frecuentes:</strong> Selecciona un tema o escribe tu pregunta.
+                        </div>
+                        <div id="chatMessages">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group mb-3">
+                        <input type="text" id="mensajeInput" class="form-control" placeholder="Escribe tu pregunta..." style="resize: none;">
+                        <button id="btnEnviar" class="btn btn-primary" type="button">
+                            <i class="fas fa-paper-plane"></i> Enviar
+                        </button>
+                    </div>
+                    
+                    <!-- Preguntas Rápidas -->
+                    <div class="mt-3">
+                        <small class="text-muted">Preguntas frecuentes:</small>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="diagnóstico">¿Qué es el diagnóstico?</button>
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="python">¿Qué es Python?</button>
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="django">¿Qué es Django?</button>
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="html">¿Qué es HTML?</button>
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="css">¿Qué es CSS?</button>
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="javascript">¿Qué es JavaScript?</button>
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="plataforma">¿Cómo usar la plataforma?</button>
+                            <button class="btn btn-outline-primary btn-sm quick-question" data-question="ayuda">Ayuda general</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #007bff;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.ai-message {
+    background-color: #e9ecef;
+    color: #333;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+}
+
+.typing-indicator {
+    font-style: italic;
+    color: #6c757d;
+}
+
+.quick-question {
+    font-size: 0.8rem;
+    margin: 2px;
+}
+</style>
+
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const mensajeInput = document.getElementById('mensajeInput');
+const btnEnviar = document.getElementById('btnEnviar');
+
+function agregarMensaje(contenido, esUsuario = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${esUsuario ? 'user-message' : 'ai-message'}`;
+    
+    const timestamp = new Date().toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    messageDiv.innerHTML = `
+        <div class="fw-bold">${esUsuario ? '👤 Tú' : '🤖 Asistente'}</div>
+        <div>${contenido.replace(/\n/g, '<br>')}</div>
+        <small class="d-block text-end" style="opacity: 0.7;">${timestamp}</small>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
+}
+
+async function enviarMensaje() {
+    const mensaje = mensajeInput.value.trim();
+    
+    if (!mensaje) return;
+    
+    agregarMensaje(mensaje, true);
+    mensajeInput.value = '';
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.id = 'typingIndicator';
+    typingDiv.className = 'message ai-message typing-indicator';
+    typingDiv.innerHTML = '<em>🤖 Asistente está buscando la respuesta...</em>';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.parentElement.scrollTop = chatMessages.parentElement.scrollHeight;
+    
+    try {
+        const response = await fetch('{% url "tutor_ia:enviar_mensaje" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ mensaje: mensaje })
+        });
+        
+        const data = await response.json();
+        
+        document.getElementById('typingIndicator').remove();
+        
+        if (data.success) {
+            agregarMensaje(data.respuesta, false);
+        } else {
+            agregarMensaje('❌ Error: ' + data.error, false);
+        }
+    } catch (error) {
+        document.getElementById('typingIndicator').remove();
+        agregarMensaje('❌ Error de conexión. Intenta nuevamente.', false);
+    }
+}
+
+btnEnviar.addEventListener('click', enviarMensaje);
+
+mensajeInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        enviarMensaje();
+    }
+});
+
+document.querySelectorAll('.quick-question').forEach(button => {
+    button.addEventListener('click', function() {
+        const pregunta = this.getAttribute('data-question');
+        mensajeInput.value = pregunta;
+        enviarMensaje();
+    });
+});
+
+window.addEventListener('load', function() {
+    agregarMensaje('¡Hola! Soy tu asistente virtual. Puedo responder tus preguntas sobre el diagnóstico, Python, Django, HTML, CSS, JavaScript y el uso de la plataforma. ¿En qué puedo ayudarte?', false);
+});
+</script>
+{% endblock %}

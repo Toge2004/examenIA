@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3><i class="fas fa-book"></i> Progreso del Módulo: {{ modulo.titulo }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Información del Módulo</h5>
+                            <p><strong>Descripción:</strong> {{ modulo.descripcion }}</p>
+                            <p><strong>Duración estimada:</strong> {{ modulo.duracion_estimada }} minutos</p>
+                            {% if progreso %}
+                                <p><strong>Fecha de inicio:</strong> {{ progreso.fecha_inicio|date:"d/m/Y" }}</p>
+                                {% if progreso.completado %}
+                                    <p><strong>Fecha de completado:</strong> {{ progreso.fecha_completado|date:"d/m/Y" }}</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Estado del Progreso</h5>
+                            {% if progreso and progreso.completado %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i> Módulo completado
+                                </div>
+                            {% elif progreso %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-clock"></i> En progreso
+                                </div>
+                            {% else %}
+                                <div class="alert alert-secondary">
+                                    <i class="fas fa-play"></i> No iniciado
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h5>Lecciones del Módulo</h5>
+                    <div class="list-group">
+                        {% for leccion in lecciones %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ leccion.leccion.titulo }}</h6>
+                                {% if leccion.completada %}
+                                    <span class="badge bg-success">Completada</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Pendiente</span>
+                                {% endif %}
+                            </div>
+                            <p class="mb-1">{{ leccion.leccion.tipo_contenido }}</p>
+                            {% if leccion.fecha_completada %}
+                                <small>Completada el {{ leccion.fecha_completada|date:"d/m/Y" }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-4">
+                        {% if not progreso or not progreso.completado %}
+                            <form method="post" action="{% url 'diagnostico:marcar_modulo_completado' modulo.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success" onclick="return confirm('¿Marcar este módulo como completado?')">
+                                    <i class="fas fa-check"></i> Marcar como Completado
+                                </button>
+                            </form>
+                        {% endif %}
+                        <a href="{% url 'diagnostico:dashboard_progreso' %}" class="btn btn-outline-secondary ml-2">
+                            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

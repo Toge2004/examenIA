@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-book"></i> {{ modulo.titulo }}</h3>
+                    <p class="mb-0">{{ modulo.descripcion }}</p>
+                </div>
+                <div class="card-body">
+                    {% if lecciones %}
+                        <h4 class="mb-3">Lecciones del módulo</h4>
+                        <div class="list-group">
+                            {% for leccion in lecciones %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ leccion.titulo }}</h5>
+                                    <small class="text-muted">
+                                        {% if leccion.tipo_contenido == 'teoria' %}
+                                            <span class="badge bg-info">Teoría</span>
+                                        {% elif leccion.tipo_contenido == 'ejemplo' %}
+                                            <span class="badge bg-warning">Ejemplo</span>
+                                        {% elif leccion.tipo_contenido == 'ejercicio' %}
+                                            <span class="badge bg-success">Ejercicio</span>
+                                        {% elif leccion.tipo_contenido == 'evaluacion' %}
+                                            <span class="badge bg-danger">Evaluación</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <p class="mb-1">{{ leccion.contenido|truncatechars:150 }}</p>
+                                <small class="text-muted">Lección {{ leccion.orden }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Este módulo aún no tiene lecciones disponibles.
+                        </div>
+                    {% endif %}
+
+                    {% if preguntas %}
+                        <h4 class="mb-3 mt-4">Evaluación del módulo</h4>
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for pregunta in preguntas %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Pregunta {{ pregunta.numero }}</h5>
+                                    <p class="card-text">{{ pregunta.texto }}</p>
+                                    {% for key, value in pregunta.opciones.items %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="pregunta_{{ pregunta.numero }}" id="pregunta_{{ pregunta.numero }}_{{ key }}" value="{{ key }}" {% if pregunta.seleccion == key %}checked{% endif %}>
+                                        <label class="form-check-label" for="pregunta_{{ pregunta.numero }}_{{ key }}">
+                                            {{ key }}. {{ value }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <button type="submit" class="btn btn-primary">Enviar respuestas</button>
+                        </form>
+
+                        {% if resultado %}
+                        <div class="mt-4">
+                            <h5>Resultado</h5>
+                            <p>Puntuación: {{ resultado.puntaje }} / {{ resultado.total }}</p>
+                            {% if resultado.puntaje >= 7 %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle"></i> ¡Felicitaciones! Has aprobado el módulo.
+                                    {% if completado %}
+                                        <a href="{% url 'modulos:descargar_certificado' modulo.id %}" class="btn btn-success btn-sm ms-2">
+                                            <i class="fas fa-download"></i> Descargar Certificado
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> Necesitas al menos 7/10 para aprobar. ¡Inténtalo de nuevo!
+                                </div>
+                            {% endif %}
+                            <h6>Feedback:</h6>
+                            <ul class="list-group">
+                                {% for item in feedback %}
+                                <li class="list-group-item {% if item.es_correcta %}list-group-item-success{% else %}list-group-item-danger{% endif %}">
+                                    <strong>Pregunta {{ item.numero }}:</strong> {{ item.texto }}<br>
+                                    Tu respuesta: {{ item.dada }} ({{ item.correcta }}) - {% if item.es_correcta %}Correcta{% else %}Incorrecta{% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{% url 'modulos:lista_modulos' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a módulos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

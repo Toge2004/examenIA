@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-tachometer-alt"></i> Dashboard Principal</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <h4>Bienvenido, {{ user.username }}!</h4>
+                            <p class="text-muted">Plataforma de Competencias Digitales</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{% url 'usuarios:perfil_usuario' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-user"></i> Mi Perfil
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'tutor_ia:chat' %}" class="btn btn-outline-info">
+                                    <i class="fas fa-robot"></i> Tutor IA
+                                </a>
+                                <a href="/modulos/" class="btn btn-outline-warning">
+                                    <i class="fas fa-book"></i> Módulos de Estudio
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0"><i class="fas fa-graduation-cap"></i> Módulos de Estudio</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <i class="fas fa-book-open fa-3x text-warning mb-3"></i>
+                                    <h5>Contenido Educativo</h5>
+                                    <p class="card-text">Accede a los 5 módulos de aprendizaje especializados</p>
+                                    <div class="mt-3">
+                                        <a href="/modulos/" class="btn btn-warning">
+                                            <i class="fas fa-play-circle"></i> Ver Módulos
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-light">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> 5 módulos disponibles
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clipboard-check fa-3x text-primary mb-3"></i>
+                                    <h5>Diagnóstico Inicial</h5>
+                                    <p class="card-text">Evalúa tus competencias digitales</p>
+                                    <a href="/diagnostico/iniciar/" class="btn btn-primary">Comenzar Diagnóstico</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                                    <h5>Mi Progreso</h5>
+                                    <p class="card-text">Revisa tus resultados y avances</p>
+                                    <a href="/diagnostico/dashboard/" class="btn btn-success">Ver Progreso</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h5><i class="fas fa-rocket"></i> Comienza tu Aprendizaje</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-2">
+                                            <div class="p-3">
+                                                <i class="fas fa-laptop-code fa-2x text-info mb-2"></i>
+                                                <h6>Módulo 1</h6>
+                                                <small>Fundamentos</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="p-3">
+                                                <i class="fas fa-mobile-alt fa-2x text-info mb-2"></i>
+                                                <h6>Módulo 2</h6>
+                                                <small>Intermedio</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="p-3">
+                                                <i class="fas fa-cloud fa-2x text-info mb-2"></i>
+                                                <h6>Módulo 3</h6>
+                                                <small>Avanzado</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="p-3">
+                                                <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
+                                                <h6>Módulo 4</h6>
+                                                <small>Seguridad</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="p-3">
+                                                <i class="fas fa-project-diagram fa-2x text-info mb-2"></i>
+                                                <h6>Módulo 5</h6>
+                                                <small>Proyecto Final</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="p-3">
+                                                <a href="/modulos/" class="btn btn-outline-info btn-sm">
+                                                    <i class="fas fa-arrow-right"></i> Ver Todos
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

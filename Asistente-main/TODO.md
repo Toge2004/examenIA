@@ -1,0 +1,4 @@
+- [x] Integrate initial modules creation into modulos/apps.py ready() method
+- [x] Integrate initial diagnosis data creation into diagnostico/apps.py ready() method
+- [x] Test the application to ensure data is created automatically on startup
+- [x] Fix database access in AppConfig.ready() methods to prevent errors during makemigrations

@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="fas fa-chart-line"></i> Mi Progreso</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-center bg-primary text-white">
+                                <div class="card-body">
+                                    <h2>{{ modulos_completados }}/{{ total_modulos }}</h2>
+                                    <p class="mb-0">Módulos Completados</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center bg-info text-white">
+                                <div class="card-body">
+                                    <h2>{{ porcentaje_progreso }}%</h2>
+                                    <p class="mb-0">Progreso Total</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center bg-warning text-white">
+                                <div class="card-body">
+                                    <h2>{{ total_modulos|add:"-modulos_completados" }}</h2>
+                                    <p class="mb-0">Módulos Pendientes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center bg-secondary text-white">
+                                <div class="card-body">
+                                    <h2>0</h2>
+                                    <p class="mb-0">Puntuación Promedio</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h5>Progreso General</h5>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ porcentaje_progreso }}%;" 
+                                     aria-valuenow="{{ porcentaje_progreso }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {{ porcentaje_progreso }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalle por Módulo -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Progreso por Módulo</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Módulo</th>
+                                            <th>Estado</th>
+                                            <th>Duración</th>
+                                            <th>Progreso</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dato in datos_modulos %}
+                                        <tr>
+                                            <td>
+                                                <strong>Módulo {{ dato.modulo.orden }}:</strong><br>
+                                                {{ dato.modulo.titulo }}
+                                            </td>
+                                            <td>
+                                                {% if dato.estado == 'Completado' %}
+                                                    <span class="badge bg-success">Completado</span>
+                                                {% elif dato.estado == 'En progreso' %}
+                                                    <span class="badge bg-warning">En progreso</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">No iniciado</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ dato.modulo.duracion_estimada }} min</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px;">
+                                                    <div class="progress-bar {% if dato.estado == 'Completado' %}bg-success{% elif dato.estado == 'En progreso' %}bg-warning{% else %}bg-secondary{% endif %}" 
+                                                         style="width: {% if dato.estado == 'Completado' %}100{% elif dato.estado == 'En progreso' %}50{% else %}0{% endif %}%">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if dato.estado == 'No iniciado' %}
+                                                    <a href="{% url 'modulos:detalle_modulo' dato.modulo.id %}" 
+                                                       class="btn btn-sm btn-primary">Comenzar</a>
+                                                {% else %}
+                                                    <a href="{% url 'modulos:detalle_modulo' dato.modulo.id %}" 
+                                                       class="btn btn-sm btn-outline-primary">Continuar</a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">Resumen de Actividad</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Módulos comenzados
+                                            <span class="badge bg-primary rounded-pill">{{ progresos.count }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Módulos completados
+                                            <span class="badge bg-success rounded-pill">{{ modulos_completados }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Tiempo total estimado
+                                            <span class="badge bg-warning rounded-pill">
+                                                {% with total=0 %}
+                                                    {% for progreso in progresos %}
+                                                        {% if progreso.completado %}
+                                                            {{ total|add:progreso.modulo.duracion_estimada }}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endwith %} min
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">Próximos Pasos</h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if modulos_completados == total_modulos %}
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-trophy"></i> ¡Felicidades! Has completado todos los módulos.
+                                        </div>
+                                    {% else %}
+                                        <p>Continúa con tu aprendizaje:</p>
+                                        <ul>
+                                            {% for dato in datos_modulos %}
+                                                {% if dato.estado != 'Completado' %}
+                                                    <li>
+                                                        <a href="{% url 'modulos:detalle_modulo' dato.modulo.id %}">
+                                                            Módulo {{ dato.modulo.orden }}: {{ dato.modulo.titulo }}
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

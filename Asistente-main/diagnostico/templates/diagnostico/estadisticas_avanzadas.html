@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h3><i class="fas fa-chart-bar"></i> Estadísticas Avanzadas</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5>Tiempo Promedio de Completado</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <h2>{{ tiempo_promedio_completado }} min</h2>
+                                    <p>Por módulo completado</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h5>Usuarios Activos en la Plataforma</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <h2>{{ total_usuarios_plataforma }}</h2>
+                                    <p>Total de usuarios registrados</p>
+                                    <p class="text-muted">{{ porcentaje_usuarios_activos }}% con progreso</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h5>Módulos Completados por Mes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="modulosChart" width="400" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'diagnostico:dashboard_progreso' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('modulosChart').getContext('2d');
+    const labels = {{ modulos_por_mes|safe }}.map(item => item.mes);
+    const data = {{ modulos_por_mes|safe }}.map(item => item.total);
+    const modulosChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Módulos Completados',
+                data: data,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

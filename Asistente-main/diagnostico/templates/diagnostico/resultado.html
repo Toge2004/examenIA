@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resultados del Diagnóstico</title>
+    <style>
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .progress-container { margin: 20px 0; }
+        .progress-bar { 
+            background: #e0e0e0; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            height: 20px; 
+            margin: 10px 0;
+        }
+        .progress-fill { 
+            background: #4CAF50; 
+            height: 100%; 
+            transition: width 0.3s ease;
+        }
+        .modulo-card { 
+            background: #f9f9f9; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .completado { border-left-color: #28a745; }
+        .en-progreso { border-left-color: #ffc107; }
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+            margin: 20px 0;
+        }
+        .stat-card { 
+            background: white; 
+            padding: 20px; 
+            text-align: center; 
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados de tu Diagnóstico</h1>
+        
+        <!-- Estadísticas generales -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Puntuación Total</h3>
+                <h2>{{ puntuacion_total_general }}/{{ puntuacion_maxima_general }}</h2>
+                <p>{{ porcentaje_general|floatformat:1 }}% de puntuación máxima</p>
+            </div>
+            <div class="stat-card">
+                <h3>Preguntas Respondidas</h3>
+                <h2>{{ resultados|length }}/{{ total_preguntas }}</h2>
+            </div>
+        </div>
+
+        <!-- Detalle de respuestas -->
+        <h2>Detalle de tus Respuestas</h2>
+        {% for respuesta in resultados %}
+        <div class="modulo-card">
+            <h4>{{ respuesta.pregunta.texto }}</h4>
+            <p><strong>Tu respuesta:</strong> {{ respuesta.opcion_seleccionada.texto }}</p>
+            <p><strong>Puntuación:</strong> {{ respuesta.opcion_seleccionada.valor }}/5</p>
+        </div>
+        {% empty %}
+        <p>No se encontraron respuestas guardadas.</p>
+        {% endfor %}
+
+        <h2>Tu Progreso en Módulos</h2>
+        {% for modulo_info in modulos_con_progreso %}
+        <div class="modulo-card {% if modulo_info.completado %}completado{% else %}en-progreso{% endif %}">
+            <h3>{{ modulo_info.modulo.nombre }}</h3>
+            <p>{{ modulo_info.modulo.descripcion }}</p>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ modulo_info.progreso }}%"></div>
+                </div>
+                <p>{{ modulo_info.progreso|floatformat:1 }}% Completado</p>
+            </div>
+            {% if modulo_info.completado %}
+                <span style="color: #28a745;">✓ Completado</span>
+            {% else %}
+                <a href="#" class="btn">Continuar Módulo</a>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p>No hay módulos disponibles.</p>
+        {% endfor %}
+
+        <div style="margin-top: 30px; padding: 20px; background: #e7f3ff; border-radius: 5px;">
+            <h3>Recomendaciones Personalizadas</h3>
+            <p>{{ mensaje_generico }}</p>
+            <ul>
+                {% for recomendacion in recomendaciones %}
+                <li>{{ recomendacion }}</li>
+                {% empty %}
+                <li>No hay recomendaciones específicas disponibles en este momento.</li>
+                {% endfor %}
+            </ul>
+            {% if porcentaje_general < 60 %}
+            <p style="margin-top: 15px; color: #d9534f;">
+                <strong>Nota:</strong> Tu puntuación indica que podrías beneficiarte de revisar los módulos básicos antes de continuar con temas más avanzados.
+            </p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 20px;">
+            <a href="{% url 'modulos:lista_modulos' %}" class="btn" style="background: #28a745; margin-right: 10px;">
+                <i class="fas fa-graduation-cap"></i> Ir a los Módulos Recomendados
+            </a>
+            <a href="{% url 'diagnostico:dashboard_diagnostico' %}" class="btn">
+                Volver al Dashboard
+            </a>
+            <a href="{% url 'diagnostico:iniciar_diagnostico' %}" class="btn">
+                Realizar Nuevo Diagnóstico
+            </a>
+        </div>
+    </div>
+</body>
+</html>
